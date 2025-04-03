@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html {
+  @apply scroll-smooth bg-black text-white;
+}
+body,
+html {
+  @apply overflow-x-hidden;
+}
+
+.font-wbb {
+  letter-spacing: -4%;
+  line-height: 77%;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
