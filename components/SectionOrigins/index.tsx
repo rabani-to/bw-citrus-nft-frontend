@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic"
+import { TapeContainer } from "../SectionCartel/internals"
 
 const PageBackground = dynamic(() => import("./PageBackground"))
 
@@ -7,7 +8,11 @@ export default function SectionOrigins() {
     <section className="relative z-1 mt-16">
       <div className="w-full text-black relative max-w-3xl mx-auto">
         <nav className="flex top-0 left-0 sm:-translate-y-4 absolute z-1 w-full justify-center items-center">
-   
+          <TapeContainer className="pt-2 pb-1">
+            <span className="text-white -rotate-3 scale-y-110 text-5xl sm:text-7xl">
+              CITRUS CARTEL
+            </span>
+          </TapeContainer>
         </nav>
 
         <PageBackground className="absolute h-full sm:h-auto inset-0 sm:relative" />
