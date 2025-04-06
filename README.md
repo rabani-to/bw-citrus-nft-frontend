@@ -5,9 +5,7 @@ This repo contains the full documentation, episode breakdowns, lore, utilities, 
 
 ---
 
-## 📦 What's in this repo
-
-This repository includes:
+## 📦 What will be available in this repo:
 
 - `/episodes`: Markdown files for each narrative episode (BITTER → SPICY)
 - `/metadata`: JSON metadata used for NFT minting
@@ -33,17 +31,6 @@ The **Citrus Cártel** is not just a collection — it’s a *living* story wher
 
 Each rank unlocks different tasks, quests and sprint privileges.  
 The deeper your level, the juicier your influence 🍊
-
----
-
----
-
-## 🧪 Mint Economics
-
-- Mint Price: `$0.50` + gas
-- 100% of the mint fees go to the reward pool
-- New sprints trigger at every $250 collected
-- Rewards distributed via Lemon Rank participation and Lemon XP system
 
 ---
 
