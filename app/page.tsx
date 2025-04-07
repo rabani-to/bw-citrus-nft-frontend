@@ -2,8 +2,8 @@ import SectionHome from "@/components/SectionHome"
 import SectionCommitment from "@/components/SectionCommitment"
 import SectionWhyCartel from "@/components/SectionWhyCartel"
 import SectionOrigins from "@/components/SectionOrigins"
+import SectionCartel from "@/components/SectionCartel"
 import SectionFAQ from "@/components/SectionFAQ"
-import Example from "./Example"
 
 export default function Home() {
   return (
@@ -12,6 +12,7 @@ export default function Home() {
 	<SectionCommitment />
 	<SectionWhyCartel />
 	<SectionOrigins />
+	<SectionCartel />
 	<SectionFAQ />
 	</>
   )
