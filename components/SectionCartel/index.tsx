@@ -7,6 +7,7 @@ import { getLevelsData } from "@/lib/actions"
 import { FORM_IDS } from "@/app/form/[id]/constants"
 
 const LevelOne = dynamic(() => import("./LevelOne"))
+const LevelTwo = dynamic(() => import("./LevelTwo"))
 
 export default function SectionCartel() {
   const { data } = useSWR<{
@@ -30,6 +31,7 @@ export default function SectionCartel() {
       className="w-full mt-12 pt-28 mb-24 flex flex-col gap-36 relative z-2 max-w-5xl mx-auto"
     >
       <LevelOne count={data?.l1} onWhitelist={() => openForm(FORM_IDS.L1)} />
+	  <LevelTwo count={data?.l2} onWhitelist={() => openForm(FORM_IDS.L2)} />
     </section>
   )
 }
