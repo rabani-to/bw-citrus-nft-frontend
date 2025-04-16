@@ -5,6 +5,7 @@ import SectionOrigins from "@/components/SectionOrigins"
 import SectionLevels from "@/components/SectionLevels"
 import SectionCartel from "@/components/SectionCartel"
 import SectionFAQ from "@/components/SectionFAQ"
+import Footer from "@/components/Footer"
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
 	<SectionOrigins />
 	<SectionCartel />
 	<SectionFAQ />
+	<Footer />
 	</>
   )
 }
