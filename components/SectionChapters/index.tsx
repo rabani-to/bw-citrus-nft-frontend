@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { Fragment, type PropsWithChildren } from "react"
-import dynamic from "next/dynamic"
+import { Fragment, type PropsWithChildren } from "react";
+import dynamic from "next/dynamic";
 
-import { LuMoveRight } from "react-icons/lu"
+import { LuMoveRight } from "react-icons/lu";
 
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 
-import { BackButton, NextButton } from "./internals"
+import { BackButton, NextButton } from "./internals";
 
 const PageBackground = dynamic(
   () => import("@/components/SectionOrigins/PageBackground")
-)
+);
 
 const TapeContainer = dynamic(() =>
   import("@/components/SectionCartel/internals").then(
     (mod) => mod.TapeContainer
   )
-)
+);
 
 export default function SectionChapters() {
   return (
@@ -262,12 +262,42 @@ export default function SectionChapters() {
               </p>
             </Chapter>
           </CarouselItem>
+          <CarouselItem>
+            <Chapter title='CHAPTER 3 - "martita"'>
+              <p>
+                Nobody ever called her by her name anymore. In the logs, she was
+                just: `martita`. A remnant of a time when front and back
+                still knew their place, when rendering was a question of
+                choice—not survival. She wasn’t born in the Cartel. She appeared
+                one day, in the middle of a sandstorm, hood up, carrying a
+                terminal she’d built from scraps. The kind that ran queries on
+                hope, not data.
+              </p>
+
+              <p>
+                “martita” spoke little. Her mind was always
+                elsewhere—rendering strategies, component hydration, keeping the
+                UI of the Cartel's systems alive with as little lag as possible.
+                To Acid, she was a mystery. To Bitter, a necessary anomaly. To
+                herself, she was nothing more than a client-side survivor in a
+                world too heavy to process on the server.
+              </p>
+
+              <p>
+                She had arrived with strange knowledge: how to sync memory
+                between minds without wires, how to predict the weather from the
+                way lemons fell off the trees. Some said she wasn’t real, that
+                she’d been coded into the world by some backend god who forgot
+                to clean up the test environment.
+              </p>
+            </Chapter>
+          </CarouselItem>
         </CarouselContent>
 
         <NextButton />
       </Carousel>
     </Fragment>
-  )
+  );
 }
 
 function ContinueReading() {
@@ -291,14 +321,14 @@ function ContinueReading() {
         <LuMoveRight className="text-4xl animate-in slide-in-from-left-2.5 repeat-infinite duration-1000 ease-in-out" />
       </div>
     </section>
-  )
+  );
 }
 
 function Chapter({
   title,
   children,
 }: PropsWithChildren<{
-  title: string
+  title: string;
 }>) {
   return (
     <div className="w-full cursor-grab text-black relative max-w-3xl mx-auto">
@@ -316,5 +346,5 @@ function Chapter({
         {children}
       </div>
     </div>
-  )
+  );
 }
