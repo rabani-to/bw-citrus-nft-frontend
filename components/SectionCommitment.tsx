@@ -1,10 +1,10 @@
-import Image from "next/image"
+import Image from "next/image";
 
-import asset_rm from "@/assets/roadmap.png"
-import asset_rm_mobile from "@/assets/cartel-mobile.png"
-import asset_border from "@/assets/border.png"
+import asset_rm from "@/assets/roadmap.png";
+import asset_rm_mobile from "@/assets/cartel-mobile.png";
+import asset_border from "@/assets/border.png";
 
-import MainButton from "@/components/MainButton"
+import MainButton from "@/components/MainButton";
 
 export default function SectionCommitment() {
   return (
@@ -48,5 +48,5 @@ export default function SectionCommitment() {
         </figure>
       </section>
     </div>
-  )
+  );
 }

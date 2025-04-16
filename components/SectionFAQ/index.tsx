@@ -1,17 +1,17 @@
-import dynamic from "next/dynamic"
-import Brush from "@/components/Brush"
-import { cn } from "@/lib/utils"
-import { Divider, FAQItem } from "./internals"
-import Link from "next/link"
+import dynamic from "next/dynamic";
+import Brush from "@/components/Brush";
+import { cn } from "@/lib/utils";
+import { Divider, FAQItem } from "./internals";
+import Link from "next/link";
 
-const Background = dynamic(() => import("./Background"))
+const Background = dynamic(() => import("./Background"));
 
 export default function SectionFAQ({
   theme,
   className,
 }: {
-  theme?: "dark" | "light"
-  className?: string
+  theme?: "dark" | "light";
+  className?: string;
 }) {
   return (
     <div id="FAQ" className={cn("relative z-1 pt-64 pb-32", className)}>
@@ -122,5 +122,5 @@ export default function SectionFAQ({
         </div>
       </section>
     </div>
-  )
+  );
 }

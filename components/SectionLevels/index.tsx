@@ -1,8 +1,8 @@
-import dynamic from "next/dynamic"
-import BlackBrush from "@/components/BlackBrush"
-import Brush from "@/components/Brush"
+import dynamic from "next/dynamic";
+import BlackBrush from "@/components/BlackBrush";
+import Brush from "@/components/Brush";
 
-const Background = dynamic(() => import("./Background"))
+const Background = dynamic(() => import("./Background"));
 
 export default function SectionLevels() {
   return (
@@ -47,5 +47,5 @@ export default function SectionLevels() {
         </p>
       </section>
     </div>
-  )
+  );
 }

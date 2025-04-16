@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
-import { useCarousel } from "@/components/ui/carousel"
-import { cn } from "@/lib/utils"
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { useCarousel } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 
 export const BackButton = ({ className }: { className?: string }) => {
-  const { scrollPrev, canScrollPrev } = useCarousel()
+  const { scrollPrev, canScrollPrev } = useCarousel();
 
   return (
     <button
@@ -19,11 +19,11 @@ export const BackButton = ({ className }: { className?: string }) => {
     >
       <IoIosArrowBack className="scale-[1.5] transition-opacity text-4xl opacity-0 group-hover:opacity-100" />
     </button>
-  )
-}
+  );
+};
 
 export const NextButton = ({ className }: { className?: string }) => {
-  const { scrollNext, canScrollNext } = useCarousel()
+  const { scrollNext, canScrollNext } = useCarousel();
 
   return (
     <button
@@ -37,5 +37,5 @@ export const NextButton = ({ className }: { className?: string }) => {
     >
       <IoIosArrowForward className="scale-[1.5] transition-opacity text-4xl opacity-0 group-hover:opacity-100" />
     </button>
-  )
-}
+  );
+};

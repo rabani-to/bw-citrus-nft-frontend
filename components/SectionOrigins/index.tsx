@@ -1,7 +1,7 @@
-import dynamic from "next/dynamic"
-import { TapeContainer } from "../SectionCartel/internals"
+import dynamic from "next/dynamic";
+import { TapeContainer } from "../SectionCartel/internals";
 
-const PageBackground = dynamic(() => import("./PageBackground"))
+const PageBackground = dynamic(() => import("./PageBackground"));
 
 export default function SectionOrigins() {
   return (
@@ -42,5 +42,5 @@ export default function SectionOrigins() {
         </div>
       </div>
     </section>
-  )
+  );
 }

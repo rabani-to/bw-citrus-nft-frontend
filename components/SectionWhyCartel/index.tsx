@@ -1,9 +1,9 @@
-import dynamic from "next/dynamic"
-import MainButton from "@/components/MainButton"
-import Brush from "@/components/Brush"
-import BlackBrush from "../BlackBrush"
+import dynamic from "next/dynamic";
+import MainButton from "@/components/MainButton";
+import Brush from "@/components/Brush";
+import BlackBrush from "../BlackBrush";
 
-const Background = dynamic(() => import("./Background"))
+const Background = dynamic(() => import("./Background"));
 
 export default function SectionWhyCartel() {
   return (
@@ -53,5 +53,5 @@ export default function SectionWhyCartel() {
         </div>
       </section>
     </div>
-  )
+  );
 }
