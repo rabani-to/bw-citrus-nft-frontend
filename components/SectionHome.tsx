@@ -1,11 +1,11 @@
-import dynamic from "next/dynamic"
+import dynamic from "next/dynamic";
 
-import Link from "next/link"
-import MainButton from "@/components/MainButton"
-import { PropsWithChildren } from "react"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import MainButton from "@/components/MainButton";
+import { PropsWithChildren } from "react";
+import { cn } from "@/lib/utils";
 
-const MainBackground = dynamic(() => import("@/components/MainBackground"))
+const MainBackground = dynamic(() => import("@/components/MainBackground"));
 
 export default function SectionHome() {
   return (
@@ -13,7 +13,7 @@ export default function SectionHome() {
       <TopNavigation />
       <MainBackground />
     </div>
-  )
+  );
 }
 
 export function TopNavigation() {
@@ -39,7 +39,7 @@ export function TopNavigation() {
         Join now
       </MainButton>
     </nav>
-  )
+  );
 }
 
 function LinkItem({
@@ -47,8 +47,8 @@ function LinkItem({
   children,
   href,
 }: PropsWithChildren<{
-  className?: string
-  href: string
+  className?: string;
+  href: string;
 }>) {
   return (
     <Link
@@ -60,5 +60,5 @@ function LinkItem({
     >
       {children}
     </Link>
-  )
+  );
 }
