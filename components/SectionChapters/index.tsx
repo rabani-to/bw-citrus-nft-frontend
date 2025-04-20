@@ -266,21 +266,20 @@ export default function SectionChapters() {
             <Chapter title='CHAPTER 3 - "martita"'>
               <p>
                 Nobody ever called her by her name anymore. In the logs, she was
-                just: `martita`. A remnant of a time when front and back
-                still knew their place, when rendering was a question of
-                choice—not survival. She wasn’t born in the Cartel. She appeared
-                one day, in the middle of a sandstorm, hood up, carrying a
-                terminal she’d built from scraps. The kind that ran queries on
-                hope, not data.
+                just: `martita`. A remnant of a time when front and back still
+                knew their place, when rendering was a question of choice—not
+                survival. She wasn’t born in the Cartel. She appeared one day,
+                in the middle of a sandstorm, hood up, carrying a terminal she’d
+                built from scraps. The kind that ran queries on hope, not data.
               </p>
 
               <p>
-                “martita” spoke little. Her mind was always
-                elsewhere—rendering strategies, component hydration, keeping the
-                UI of the Cartel's systems alive with as little lag as possible.
-                To Acid, she was a mystery. To Bitter, a necessary anomaly. To
-                herself, she was nothing more than a client-side survivor in a
-                world too heavy to process on the server.
+                “martita” spoke little. Her mind was always elsewhere—rendering
+                strategies, component hydration, keeping the UI of the Cartel's
+                systems alive with as little lag as possible. To Acid, she was a
+                mystery. To Bitter, a necessary anomaly. To herself, she was
+                nothing more than a client-side survivor in a world too heavy to
+                process on the server.
               </p>
 
               <p>
@@ -291,6 +290,37 @@ export default function SectionChapters() {
                 to clean up the test environment.
               </p>
             </Chapter>
+            <CarouselItem>
+              <Chapter title='CHAPTER 3.1 - "martita"'>
+                <p>
+                  “client-side survivor in a server-side wasteland”—that’s how
+                  she described herself once, dryly, during a rare moment of
+                  vulnerability. Her words clung to Acid's mind like old code
+                  refusing to deprecate. martita had seen systems
+                  fail—ecosystems, governments, protocols. But nothing scared
+                  her like stale state.
+                </p>
+
+                <p>
+                  In the ruins of forgotten datacenters, she scavenged what she
+                  needed. Old SSDs that still pulsed with encrypted memories,
+                  GPU rigs abandoned by miners who no longer mined. She brought
+                  them back, recompiled, rewired, revived them into something
+                  new. For the Cartel, she built the Comms Core—an encrypted
+                  mesh system that allowed them to speak across dead zones
+                  without detection.
+                </p>
+
+                <p>
+                  But martita’s real gift wasn’t hardware. It was reading
+                  patterns. She could predict movements of Vacíos before they
+                  happened. She saw code in their chaos. “They loop,” she said
+                  once. “They loop like bad scripts. Someone wrote them, or
+                  broke them.” Nobody knew what she meant, but everyone
+                  remembered it.
+                </p>
+              </Chapter>
+            </CarouselItem>
           </CarouselItem>
         </CarouselContent>
 
