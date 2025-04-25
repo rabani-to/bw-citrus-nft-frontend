@@ -1,24 +1,29 @@
-import {
-  useAccountModal,
-  useConnectModal,
-  useChainModal,
-} from "@rainbow-me/rainbowkit"
+import useSWR from 'swr'
+import useSWRMutation from 'swr/mutation'
 
-import { useAccount, useSwitchChain } from "wagmi"
+export const useLemonWallet = (referalCode: string | null) => {
+  const KEY = referalCode ? `/api/crypto/wallet/${referalCode}` : null
+  const {
+    data: wallet,
+    isLoading,
+    isValidating
+  } = useSWR<{
+    address: string | null
+  }>(KEY, key => fetch(key).then(res => res.json()))
 
-export const useRkAccountModal = () => {
-  const { isConnected, address } = useAccount()
-  const { openChainModal } = useChainModal()
-  const { openConnectModal = openChainModal } = useConnectModal()
-  const { openAccountModal = openConnectModal } = useAccountModal()
-  const chainSwitch = useSwitchChain()
+  const { trigger: createWallet, isMutating } = useSWRMutation(
+    KEY,
+    async function updateUser(url) {
+      fetch(url, {
+        method: 'POST'
+      }).then(res => res.json())
+    }
+  )
 
   return {
-    address,
-    chainSwitch,
-    isConnected,
-    openAccountModal,
-    openConnectModal,
-    openChainModal,
+    wallet,
+    isLoading: isLoading || isValidating,
+    isCreatingWallet: isMutating,
+    createWallet
   }
 }
