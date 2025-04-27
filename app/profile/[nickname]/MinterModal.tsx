@@ -1,40 +1,28 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { FaEthereum } from 'react-icons/fa6'
-
 import { Button } from '@/components/ui/button'
-
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-import {
-  useAccount,
-  useBalance,
-  useReadContract,
-  useReadContracts,
-  useSimulateContract,
-  useWriteContract
-} from 'wagmi'
-import { formatEther, type Hex, parseAbi, parseEther } from 'viem'
+import { useAccount, useBalance, useReadContract, useWriteContract } from 'wagmi'
+import { formatEther, parseAbi, parseEther, type Hex } from 'viem'
 import { ZERO_BN } from '@/lib/viem'
 import { useRkAccountModal } from '@/lib/rainbow'
 import { toast } from 'sonner'
 import { shortifyDecimals } from '@/lib/numbers'
-
 import { arbitrum, base } from 'viem/chains'
 
-export const BADGE_FACTORY_BASE = '0xEA4fe23a97b75a87C972A02cF6b234369869a04C'
-export const BADGE_FACTORY_ARBITRUM =
-  '0xc8d51aB38927D8D7F2e384111261A11966B3d26f'
+const BADGE_FACTORY_BASE = '0xEA4fe23a97b75a87C972A02cF6b234369869a04C'
+const BADGE_FACTORY_ARBITRUM = '0xc8d51aB38927D8D7F2e384111261A11966B3d26f'
 
-export const MINT_ABI = parseAbi([
+const MINT_ABI = parseAbi([
   'event BadgeMinted(bytes3 indexed lemonId, address indexed recipient, bytes32 collectionId, uint256 tokenId)',
   'function mintBadge(bytes32 _collectionId, address recipient, bytes3 referralCode) external payable',
   'function getCollectionFees(bytes32 collectionId) public view returns (uint256 total)',
   'function getCollectionAddress(bytes32 collectionId) public view returns (address)',
   'function balanceOf(address owner) external view returns (uint256 balance)',
-  'function mint(address recipient) external returns (uint256 tokenId)' // owned by factory
+  'function mint(address recipient) external returns (uint256 tokenId)'
 ])
 
 export default function MinterModal({
@@ -48,87 +36,98 @@ export default function MinterModal({
 }) {
   const [tab, setTab] = useState<'base' | 'arb'>('base')
   const isMintingBase = tab === 'base'
-  const isMintingArb = !isMintingBase
 
-  const ADDRESS = isMintingBase ? BADGE_FACTORY_BASE : BADGE_FACTORY_ARBITRUM
+  const selectedChain = useMemo(() => {
+    return isMintingBase ? base : arbitrum
+  }, [isMintingBase])
 
-  const CHAIN = isMintingBase ? base : arbitrum
+  const selectedAddress = useMemo(() => {
+    return isMintingBase ? BADGE_FACTORY_BASE : BADGE_FACTORY_ARBITRUM
+  }, [isMintingBase])
 
   const { openChainModal } = useRkAccountModal()
-
+  const { address, chainId } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
 
-  const { address, chainId } = useAccount()
-
-  const { data: mintFees = parseEther('0.00003') } = useReadContract({
-    chainId: CHAIN.id,
+  const { data: mintFees } = useReadContract({
+    chainId: selectedChain.id,
     abi: MINT_ABI,
     functionName: 'getCollectionFees',
     args: [collectionId],
-    address: ADDRESS,
-    scopeKey: `fees.${collectionId}.${CHAIN.id}`
+    address: selectedAddress,
+    scopeKey: `fees.${collectionId}.${selectedChain.id}`
   })
 
-  // Balances for both chains
   const { data: arbBalance } = useBalance({
     address,
     chainId: arbitrum.id,
-    query: {
-      enabled: Boolean(address) && isOpen,
-      refetchInterval: 5000 // 5 seconds
-    }
+    query: { enabled: Boolean(address) && isOpen, refetchInterval: 5000 }
   })
 
   const { data: baseBalance } = useBalance({
     address,
     chainId: base.id,
-    query: {
-      enabled: Boolean(address) && isOpen,
-      refetchInterval: 5000 // 5 seconds
-    }
+    query: { enabled: Boolean(address) && isOpen, refetchInterval: 5000 }
   })
 
   async function claimAsNFT() {
-    if (!address) return toast.error('Please connect your wallet first')
-    if (!collectionId) return toast.error('Badge not found')
-
-    if (
-      (isMintingBase && chainId !== base.id) ||
-      (isMintingArb && chainId !== arbitrum.id)
-    ) {
-      return openChainModal?.()
+    if (!address) {
+      toast.error('Please connect your wallet first')
+      return
     }
 
-    if (
-      (isMintingBase && (baseBalance?.value || ZERO_BN) < mintFees) ||
-      (isMintingArb && (arbBalance?.value || ZERO_BN) < mintFees)
-    ) {
-      return toast.error('Insufficient funds')
+    if (!collectionId) {
+      toast.error('Badge not found')
+      return
+    }
+
+    const correctChain = isMintingBase ? base.id : arbitrum.id
+
+    if (chainId !== correctChain) {
+      openChainModal?.()
+      return
+    }
+
+    const balance = isMintingBase ? baseBalance?.value : arbBalance?.value
+
+    if ((balance || ZERO_BN) < (mintFees || parseEther('0.00003'))) {
+      toast.error('Insufficient funds')
+      return
     }
 
     const tx = await writeContractAsync({
       abi: MINT_ABI,
       functionName: 'mintBadge',
-      address: ADDRESS,
-      chain: CHAIN,
+      address: selectedAddress,
+      chain: selectedChain,
       args: [
         collectionId,
         address,
-        address ? `0x${address}` : '0x000000' // 3 bytes
+        address ? `0x${address}` : '0x000000'
       ],
-      value: mintFees
+      value: mintFees || parseEther('0.00003')
     })
 
     if (tx) {
       toast.success('NFT minted successfully')
       window.open(
-        `${
-          isMintingBase ? 'https://basescan.org' : 'https://arbiscan.io'
-        }/tx/${tx}`,
+        `${isMintingBase ? 'https://basescan.org' : 'https://arbiscan.io'}/tx/${tx}`,
         '_blank'
       )
       onClose?.()
     }
+  }
+
+  function renderBalance() {
+    const balance = isMintingBase ? baseBalance?.value : arbBalance?.value
+    const formattedBalance = shortifyDecimals(formatEther(balance || ZERO_BN), 6)
+
+    return (
+      <p className='mt-2'>
+        <strong>{formattedBalance} ETH</strong>{' '}
+        <span className='opacity-70'>available</span>
+      </p>
+    )
   }
 
   return (
@@ -137,16 +136,10 @@ export default function MinterModal({
         <DialogContent className='max-w-md'>
           <Tabs onValueChange={setTab as any} value={tab}>
             <TabsList className='grid grid-cols-2'>
-              <TabsTrigger
-                className='text-xl justify-center text-center font-semibold'
-                value='base'
-              >
+              <TabsTrigger className='text-xl justify-center font-semibold' value='base'>
                 Base Mainnet
               </TabsTrigger>
-              <TabsTrigger
-                className='text-xl justify-center text-center font-semibold'
-                value='arb'
-              >
+              <TabsTrigger className='text-xl justify-center font-semibold' value='arb'>
                 Arbitrum
               </TabsTrigger>
             </TabsList>
@@ -154,19 +147,7 @@ export default function MinterModal({
 
           <div className='grid place-items-center'>
             <FaEthereum className='text-4xl mt-4' />
-            <p className='mt-2'>
-              <strong>
-                {shortifyDecimals(
-                  formatEther(
-                    (isMintingBase ? baseBalance : arbBalance)?.value || ZERO_BN
-                  ),
-                  6
-                )}{' '}
-                ETH
-              </strong>{' '}
-              <span className='opacity-70'>available</span>
-            </p>
-
+            {renderBalance()}
             <Button
               disabled={isPending}
               onClick={claimAsNFT}
@@ -179,64 +160,4 @@ export default function MinterModal({
       </Dialog>
     </Fragment>
   )
-}
-
-export const useCollectionMintedTimes = (collectionId: Hex) => {
-  const BASE_CONFIG = {
-    abi: MINT_ABI,
-    args: [collectionId],
-    functionName: 'getCollectionAddress'
-  } as const
-
-  const { data: resuls = [] } = useReadContracts({
-    contracts: [
-      {
-        chainId: base.id,
-        address: BADGE_FACTORY_BASE,
-        ...BASE_CONFIG
-      },
-      {
-        chainId: arbitrum.id,
-        address: BADGE_FACTORY_ARBITRUM,
-        ...BASE_CONFIG
-      }
-    ],
-    query: { enabled: Boolean(collectionId) },
-    scopeKey: `collection.${collectionId}.addresses`
-  })
-
-  const baseAddress = resuls[0]?.result
-  const arbAddress = resuls[1]?.result
-
-  console.debug({ baseAddress, arbAddress })
-
-  const BASE_SIMULATION = {
-    abi: MINT_ABI,
-    functionName: 'mint'
-  } as const
-
-  const simulationBase = useSimulateContract({
-    ...BASE_SIMULATION,
-    account: BADGE_FACTORY_BASE,
-    args: [BADGE_FACTORY_ARBITRUM], // Simulate minting to other address
-    address: baseAddress,
-    chainId: base.id
-  })
-
-  const simulationArb = useSimulateContract({
-    ...BASE_SIMULATION,
-    account: BADGE_FACTORY_ARBITRUM,
-    args: [BADGE_FACTORY_BASE], // Simulate minting to other address
-    address: arbAddress,
-    chainId: arbitrum.id
-  })
-
-  const onlyBase = Number(simulationBase.data?.result || 0)
-  const onlyArb = Number(simulationArb.data?.result || 0)
-
-  return {
-    onlyBase,
-    onlyArb,
-    total: onlyBase + onlyBase
-  }
 }
