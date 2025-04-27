@@ -1,56 +1,70 @@
-"use client"
+'use client'
 
-import { useAccount, useWriteContract } from "wagmi"
-import { erc721Abi } from "viem"
-import { useState } from "react"
+import { useAccount, useWriteContract } from 'wagmi'
+import { erc721Abi } from 'viem'
+import { useState, useCallback } from 'react'
 
-export function MintButton({ nftAddress }: { nftAddress: `0x${string}` }) {
+interface MintButtonProps {
+  nftAddress: `0x${string}`
+}
+
+export function MintButton({ nftAddress }: MintButtonProps) {
   const { address, isConnected } = useAccount()
   const { writeContractAsync, isPending } = useWriteContract()
-  const [error, setError] = useState<string | null>(null)
-  const [txHash, setTxHash] = useState<string | null>(null)
-  const [tokenId, setTokenId] = useState<bigint> (BigInt(1)) // Cambia esto al ID del token que quieras mintear
 
-  const handleMint = async () => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [transactionHash, setTransactionHash] = useState<string | null>(null)
+  const [tokenId, setTokenId] = useState<bigint>(BigInt(1))
+
+  const handleMint = useCallback(async () => {
     if (!isConnected || !address) {
-      setError("Conecta tu wallet primero.")
+      setErrorMessage('Por favor, conecta tu wallet.')
       return
     }
 
     try {
-      setError(null)
+      setErrorMessage(null)
+
       const hash = await writeContractAsync({
         address: nftAddress,
         abi: erc721Abi,
-        functionName: "safeTransferFrom", // cambia esto si tu función tiene otro nombre o parámetros
-        args: [address, "0xRecipientAddress...", tokenId], // Cambia esto si tu función tiene otros parámetros
-        account: address,
+        functionName: 'safeTransferFrom',
+        args: [address, '0xRecipientAddress...', tokenId],
+        account: address
       })
-      setTxHash(hash)
-    } catch (err: any) {
-      setError(err?.shortMessage || "Error al mintear.")
+
+      setTransactionHash(hash)
+    } catch (error: any) {
+      const fallbackMessage = 'Ocurrió un error al intentar mintear.'
+      setErrorMessage(error?.shortMessage || fallbackMessage)
     }
-  }
+  }, [isConnected, address, nftAddress, tokenId, writeContractAsync])
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <button
+        type="button"
         onClick={handleMint}
         disabled={!isConnected || isPending}
-        className="bg-lemon-green px-4 py-2 rounded-xl text-black font-semibold hover:opacity-90 disabled:opacity-50"
+        className="bg-lemon-green px-4 py-2 rounded-xl text-black font-semibold hover:opacity-90 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-lemon-green"
       >
-        {isPending ? "Minteando..." : "Mintear NFT"}
+        {isPending ? 'Minteando...' : 'Mintear NFT'}
       </button>
 
-      {error && <span className="text-red-500 text-sm">{error}</span>}
-      {txHash && (
+      {errorMessage && (
+        <span className="text-red-500 text-sm" role="alert">
+          {errorMessage}
+        </span>
+      )}
+
+      {transactionHash && (
         <a
-          href={`https://etherscan.io/tx/${txHash}`}
+          href={`https://etherscan.io/tx/${transactionHash}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm text-lemon-green underline"
         >
-          Ver en Etherscan
+          Ver transacción en Etherscan
         </a>
       )}
     </div>
