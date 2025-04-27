@@ -1,65 +1,71 @@
 'use server'
+
 import { prisma } from '@/lib/prisma'
 import { Types } from '@/types'
 import { getSession } from '@auth0/nextjs-auth0'
 import { actionResult } from 'http-react'
 
-export async function createCollection(collectionName: string) {
-  const session = await getSession()
+async function getUserPreferences() {
+  try {
+    const session = await getSession()
+    if (!session) return null
 
-  if (session) {
-    const { user } = session!
-
+    const user = session.user
     const preferences = await prisma.preferences.findFirst({
-      where: {
-        user_id: user.email
-      }
+      where: { user_id: user.email }
     })
-    const newCollection = await prisma.collection.create({
+
+    return preferences
+  } catch (error) {
+    console.error('Error fetching user preferences:', error)
+    return null
+  }
+}
+
+export async function createCollection(collectionName: string) {
+  try {
+    const preferences = await getUserPreferences()
+    if (!preferences) return actionResult(null)
+
+    const collection = await prisma.collection.create({
       data: {
         name: collectionName,
         items: [],
-        nickname: preferences?.username
+        nickname: preferences.username
       }
     })
 
-    return actionResult(newCollection)
+    return actionResult(collection)
+  } catch (error) {
+    console.error('Error creating collection:', error)
+    return actionResult(null)
   }
 }
 
 export async function getCollections() {
-  const session = await getSession()
-
-  if (session) {
-    const { user } = session
-    const preferences = await prisma.preferences.findFirst({
-      where: {
-        user_id: user.email
-      }
-    })
+  try {
+    const preferences = await getUserPreferences()
+    if (!preferences) return actionResult([] as Types.Collection[])
 
     const collections = await prisma.collection.findMany({
-      where: {
-        nickname: preferences?.username
+      where: { nickname: preferences.username }
+    })
+
+    if (collections.length > 0) return actionResult(collections)
+
+    const defaultCollection = await prisma.collection.create({
+      data: {
+        name: 'Not listed',
+        default: true,
+        nickname: preferences.username
       }
     })
 
-    if (collections.length === 0) {
-      const newCollections = [
-        await prisma.collection.create({
-          data: {
-            name: 'Not listed',
-            default: true,
-            nickname: preferences?.username
-          }
-        })
-      ]
-
-      return actionResult(newCollections)
-    }
-
-    return actionResult(collections)
-  } else return actionResult([] as Types.Collection[])
+    return actionResult([defaultCollection])
+  } catch (error) {
+    console.error('Error fetching collections:', error)
+    return actionResult([] as Types.Collection[])
+  }
 }
 
 export async function addToCollection({
@@ -69,27 +75,28 @@ export async function addToCollection({
   collectionId: string
   questionId: string
 }) {
-  const existingCollection = (await prisma.collection.findFirst({
-    where: {
-      id: collectionId
-    }
-  }))!
+  try {
+    const collection = await prisma.collection.findFirst({
+      where: { id: collectionId }
+    })
+    if (!collection) return actionResult(null)
 
-  const isInCollection = existingCollection.items.indexOf(questionId) !== -1
+    const exists = collection.items.includes(questionId)
 
-  const updated = await prisma.collection.update({
-    where: {
-      id: collectionId
-    },
-    data: {
-      items: isInCollection
-        ? // Remove if already added to collection or add if not in collection
-          existingCollection.items.filter(id => id !== questionId)
-        : [...existingCollection.items, questionId]
-    }
-  })
+    const updatedItems = exists
+      ? collection.items.filter(id => id !== questionId)
+      : [...collection.items, questionId]
 
-  return actionResult(updated)
+    const updatedCollection = await prisma.collection.update({
+      where: { id: collectionId },
+      data: { items: updatedItems }
+    })
+
+    return actionResult(updatedCollection)
+  } catch (error) {
+    console.error('Error updating collection:', error)
+    return actionResult(null)
+  }
 }
 
 export async function addToNewCollection({
@@ -99,81 +106,79 @@ export async function addToNewCollection({
   questionId: string
   collectionName: string
 }) {
-  const session = await getSession()
+  try {
+    const preferences = await getUserPreferences()
+    if (!preferences) return actionResult(null)
 
-  const { user } = session!
+    const collection = await prisma.collection.create({
+      data: {
+        name: collectionName,
+        items: [questionId],
+        nickname: preferences.username,
+        default: false,
+        description: ''
+      }
+    })
 
-  const preferences = await prisma.preferences.findFirst({
-    where: {
-      user_id: user.email
-    }
-  })
-
-  const newCollection = await prisma.collection.create({
-    data: {
-      name: collectionName,
-      items: [questionId],
-      nickname: preferences?.username,
-      default: false,
-      description: ''
-    }
-  })
-
-  return actionResult(newCollection)
+    return actionResult(collection)
+  } catch (error) {
+    console.error('Error creating new collection:', error)
+    return actionResult(null)
+  }
 }
 
 export async function getCollection(id: string) {
-  const collection = await prisma.collection.findFirst({
-    where: {
-      id
-    }
-  })
+  try {
+    const collection = await prisma.collection.findFirst({
+      where: { id }
+    })
+    if (!collection) return null
 
-  if (!collection) return null
-
-  const quizzes = await prisma.newQuiz.findMany({
-    where: {
-      questions: {
-        some: {
-          id: {
-            in: collection?.items
-          }
-        }
+    const quizzes = await prisma.newQuiz.findMany({
+      where: {
+        questions: { some: { id: { in: collection.items } } }
+      },
+      select: {
+        questions: true,
+        topics: true
       }
-    },
-    select: {
-      questions: true,
-      topics: true
+    })
+
+    let questions = []
+    let topics = []
+    let i = 0
+
+    while (i < quizzes.length) {
+      let quiz = quizzes[i]
+      let j = 0
+
+      while (j < quiz.questions.length) {
+        let question = quiz.questions[j]
+        if (collection.items.includes(question.id)) {
+          questions = [...questions, question]
+        }
+        j = j + 1
+      }
+
+      topics = [...topics, ...quiz.topics]
+      i = i + 1
     }
-  })
 
-  const questionsData = quizzes.reduce(
-    (previous, next) => ({
-      ...previous,
-      questions: [
-        ...previous.questions,
-        ...next.questions.filter(
-          question => collection?.items.indexOf(question.id) !== -1
-        )
-      ],
-      topics: [...previous.topics, ...next.topics]
-    }),
-    { topics: [], questions: [] }
-  )
+    const collectionData: Types.NewQuiz = {
+      id: collection.id,
+      name: collection.name,
+      imageUrl: '/default-quiz-image.png',
+      description: collection.description,
+      nickname: collection.nickname,
+      questions,
+      topics,
+      context: '',
+      visibility: 'public'
+    }
 
-  const { questions, topics } = questionsData
-
-  const collectionData: Types.NewQuiz = {
-    id: collection?.id!,
-    name: collection?.name!,
-    imageUrl: '/default-quiz-image.png',
-    description: collection?.description!,
-    nickname: collection?.nickname!,
-    questions,
-    topics,
-    context: '',
-    visibility: 'public'
+    return collectionData
+  } catch (error) {
+    console.error('Error fetching collection details:', error)
+    return null
   }
-
-  return collectionData
 }
